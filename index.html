@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeLine — Personal Financial Overlay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #111520;
+    --surface2: #161c2d;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-dim: rgba(201,168,76,0.15);
+    --gold-line: rgba(201,168,76,0.6);
+    --teal: #4cc9c9;
+    --red: #e05c5c;
+    --green: #56c987;
+    --blue: #5c8fe0;
+    --purple: #9b6fe0;
+    --text: #e8eaf0;
+    --text-dim: #8891aa;
+    --text-muted: #4a5168;
+    --panel-w: 320px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--gold);
+    letter-spacing: 0.03em;
+  }
+  .logo span { color: var(--text-dim); font-weight: 400; font-size: 14px; margin-left: 12px; }
+
+  .client-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  .client-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+  .client-name { font-weight: 500; }
+  .client-sub { color: var(--text-dim); font-size: 11px; }
+
+  .header-actions { display: flex; gap: 10px; }
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+  }
+  .btn:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-primary { background: var(--gold); color: #0a0d14; border-color: var(--gold); font-weight: 500; }
+  .btn-primary:hover { background: #dbb85a; color: #0a0d14; }
+
+  /* ── LAYOUT ── */
+  .app-body {
+    display: flex;
+    height: calc(100vh - 65px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--panel-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .stab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+  }
+  .stab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+  .sidebar-content::-webkit-scrollbar { width: 4px; }
+  .sidebar-content::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    margin-top: 18px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* Event list */
+  .event-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .event-item:hover { border-color: rgba(201,168,76,0.3); }
+  .event-item.selected { border-color: var(--gold); background: var(--gold-dim); }
+
+  .event-color {
+    width: 3px;
+    border-radius: 2px;
+    min-height: 36px;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+
+  .event-info { flex: 1; min-width: 0; }
+  .event-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .event-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .event-amount { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--gold); margin-top: 3px; }
+
+  .event-delete {
+    opacity: 0;
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    transition: opacity 0.2s;
+  }
+  .event-item:hover .event-delete { opacity: 0.6; }
+  .event-delete:hover { opacity: 1 !important; }
+
+  /* Add event form */
+  .add-btn {
+    width: 100%;
+    padding: 10px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .add-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .form-panel {
+    background: var(--surface2);
+    border: 1px solid var(--gold-line);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+  .form-panel.open { display: block; }
+
+  .form-row { margin-bottom: 10px; }
+  label { font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 4px; }
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 60px; }
+  select option { background: var(--surface2); }
+
+  .color-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .color-swatch {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .color-swatch.active { border-color: white; transform: scale(1.2); }
+
+  .form-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .form-actions .btn { flex: 1; text-align: center; }
+
+  /* Market layers toggle */
+  .layer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 10px;
+    border-radius: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .layer-toggle:hover { border-color: rgba(255,255,255,0.15); }
+  .layer-left { display: flex; align-items: center; gap: 8px; }
+  .layer-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .layer-name { font-size: 13px; }
+  .toggle-sw {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    background: var(--border);
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-sw.on { background: var(--gold); }
+  .toggle-sw::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: white;
+    top: 3px; left: 3px;
+    transition: left 0.2s;
+  }
+  .toggle-sw.on::after { left: 17px; }
+
+  /* ── CHART AREA ── */
+  .chart-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chart-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .time-range { display: flex; gap: 4px; }
+  .tr-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .tr-btn:hover { color: var(--text); }
+  .tr-btn.active { background: var(--gold-dim); border-color: var(--gold-line); color: var(--gold); }
+
+  .chart-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .chart-canvas-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  canvas#mainChart {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Tooltip */
+  .chart-tooltip {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--gold-line);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    min-width: 180px;
+    z-index: 20;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .tooltip-year { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); margin-bottom: 8px; }
+  .tooltip-row { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 4px; }
+  .tooltip-label { color: var(--text-dim); }
+  .tooltip-val { font-family: 'DM Mono', monospace; font-weight: 400; }
+  .tooltip-event { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .tooltip-event-name { font-weight: 500; }
+  .tooltip-event-note { color: var(--text-dim); margin-top: 2px; }
+
+  /* Event popup on click */
+  .event-popup {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--gold-line);
+    border-radius: 12px;
+    padding: 16px 20px;
+    width: 240px;
+    z-index: 30;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+    display: none;
+  }
+  .popup-year { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .popup-title { font-family: 'Playfair Display', serif; font-size: 17px; margin: 4px 0 6px; }
+  .popup-amount { font-family: 'DM Mono', monospace; color: var(--gold); font-size: 15px; margin-bottom: 8px; }
+  .popup-note { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .popup-close { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; }
+  .popup-close:hover { color: var(--text); }
+
+  /* Bottom insight bar */
+  .insight-bar {
+    padding: 12px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .insight-item { display: flex; flex-direction: column; }
+  .insight-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .insight-value { font-family: 'DM Mono', monospace; font-size: 15px; margin-top: 2px; }
+  .insight-value.pos { color: var(--green); }
+  .insight-value.neg { color: var(--red); }
+  .insight-value.gold { color: var(--gold); }
+
+  .insight-divider { width: 1px; height: 32px; background: var(--border); }
+
+  .insight-narrative {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 400px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Modal overlay */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--gold-line);
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 480px;
+    max-width: 95vw;
+  }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); margin-bottom: 6px; }
+  .modal-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
+  .modal .form-row { margin-bottom: 14px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+  /* Animated intro */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.5s ease forwards; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">LifeLine <span>Financial Overlay Platform</span></div>
+  <div class="client-badge">
+    <div class="client-dot"></div>
+    <div>
+      <div class="client-name" id="clientNameDisplay">Robert & Sandra Mercer</div>
+      <div class="client-sub">Session active · Advisor view</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="openClientModal()">Change Client</button>
+    <button class="btn btn-primary" onclick="exportView()">Export View</button>
+  </div>
+</header>
+
+<!-- BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <div class="stab active" onclick="switchTab(this,'events')">Life Events</div>
+      <div class="stab" onclick="switchTab(this,'layers')">Market Layers</div>
+    </div>
+
+    <div class="sidebar-content" id="tab-events">
+
+      <div class="section-label">Client Milestones</div>
+
+      <div id="eventList">
+        <!-- populated by JS -->
+      </div>
+
+      <button class="add-btn" onclick="toggleForm()">+ Add Life Event</button>
+
+      <div class="form-panel" id="addForm">
+        <div class="form-row">
+          <label>Event Title</label>
+          <input type="text" id="f-title" placeholder="e.g. Started first job">
+        </div>
+        <div class="form-row">
+          <label>Year</label>
+          <input type="number" id="f-year" min="1926" max="2025" placeholder="1998">
+        </div>
+        <div class="form-row">
+          <label>Amount / Value (optional)</label>
+          <input type="text" id="f-amount" placeholder="$120,000">
+        </div>
+        <div class="form-row">
+          <label>Category</label>
+          <select id="f-category">
+            <option value="income">Income / Career</option>
+            <option value="invest">Investment</option>
+            <option value="debt">Debt / Liability</option>
+            <option value="purchase">Major Purchase</option>
+            <option value="life">Life Event</option>
+            <option value="loss">Loss / Setback</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Notes</label>
+          <textarea id="f-note" placeholder="Optional context for this event..."></textarea>
+        </div>
+        <div class="form-row">
+          <label>Color</label>
+          <div class="color-row" id="colorRow">
+            <div class="color-swatch active" style="background:#c9a84c" data-c="#c9a84c" onclick="pickColor(this)"></div>
+            <div class="color-swatch" style="background:#56c987" data-c="#56c987" onclick="pickColor(this)"></div>
+            <div class="color-swatch" style="background:#4cc9c9" data-c="#4cc9c9" onclick="pickColor(this)"></div>
+            <div class="color-swatch" style="background:#e05c5c" data-c="#e05c5c" onclick="pickColor(this)"></div>
+            <div class="color-swatch" style="background:#5c8fe0" data-c="#5c8fe0" onclick="pickColor(this)"></div>
+            <div class="color-swatch" style="background:#9b6fe0" data-c="#9b6fe0" onclick="pickColor(this)"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="toggleForm()">Cancel</button>
+          <button class="btn btn-primary" onclick="addEvent()">Add Event</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sidebar-content" id="tab-layers" style="display:none">
+      <div class="section-label">Market Data Layers</div>
+      <div id="layerToggles"><!-- populated by JS --></div>
+
+      <div class="section-label" style="margin-top:24px">Chart Style</div>
+      <div class="layer-toggle" onclick="toggleFill(this)">
+        <div class="layer-left">
+          <div class="layer-dot" style="background:var(--gold)"></div>
+          <span class="layer-name">Fill under curves</span>
+        </div>
+        <div class="toggle-sw on" id="fillToggle"></div>
+      </div>
+      <div class="layer-toggle" onclick="toggleRecessions(this)">
+        <div class="layer-left">
+          <div class="layer-dot" style="background:#e05c5c"></div>
+          <span class="layer-name">Show recessions</span>
+        </div>
+        <div class="toggle-sw on" id="recToggle"></div>
+      </div>
+      <div class="layer-toggle" onclick="toggleEvents(this)">
+        <div class="layer-left">
+          <div class="layer-dot" style="background:var(--teal)"></div>
+          <span class="layer-name">Show client events</span>
+        </div>
+        <div class="toggle-sw on" id="evtToggle"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART AREA -->
+  <div class="chart-area">
+    <div class="chart-toolbar">
+      <div class="time-range">
+        <button class="tr-btn" onclick="setRange(1950, this)">1950</button>
+        <button class="tr-btn" onclick="setRange(1970, this)">1970</button>
+        <button class="tr-btn active" onclick="setRange(1990, this)">1990</button>
+        <button class="tr-btn" onclick="setRange(2000, this)">2000</button>
+        <button class="tr-btn" onclick="setRange(2010, this)">2010</button>
+      </div>
+      <div class="chart-title">Growth of $10,000 · 1926–2024</div>
+    </div>
+
+    <div class="chart-canvas-wrap">
+      <canvas id="mainChart"></canvas>
+      <div class="chart-tooltip" id="tooltip"></div>
+      <div class="event-popup" id="evtPopup">
+        <button class="popup-close" onclick="closePopup()">×</button>
+        <div class="popup-year" id="popYear"></div>
+        <div class="popup-title" id="popTitle"></div>
+        <div class="popup-amount" id="popAmount"></div>
+        <div class="popup-note" id="popNote"></div>
+      </div>
+    </div>
+
+    <div class="insight-bar">
+      <div class="insight-item">
+        <span class="insight-label">Market Entry</span>
+        <span class="insight-value gold" id="ins-entry">—</span>
+      </div>
+      <div class="insight-divider"></div>
+      <div class="insight-item">
+        <span class="insight-label">Events Placed</span>
+        <span class="insight-value gold" id="ins-count">0</span>
+      </div>
+      <div class="insight-divider"></div>
+      <div class="insight-item">
+        <span class="insight-label">Best Market Year</span>
+        <span class="insight-value pos" id="ins-best">—</span>
+      </div>
+      <div class="insight-divider"></div>
+      <div class="insight-item">
+        <span class="insight-label">Recessions During Life</span>
+        <span class="insight-value neg" id="ins-rec">—</span>
+      </div>
+      <div class="insight-divider"></div>
+      <div class="insight-narrative" id="ins-narrative">Add life events to generate a personalized narrative of the client's financial journey through market history.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE CLIENT MODAL -->
+<div class="modal-bg" id="clientModal">
+  <div class="modal">
+    <div class="modal-title">Client Setup</div>
+    <div class="modal-sub">Enter client information to personalize the overlay session.</div>
+    <div class="form-row">
+      <label>Client Name</label>
+      <input type="text" id="m-name" placeholder="Full name or household">
+    </div>
+    <div class="form-row">
+      <label>Birth Year</label>
+      <input type="number" id="m-birth" placeholder="1965" min="1920" max="2005">
+    </div>
+    <div class="form-row">
+      <label>Advisor Notes</label>
+      <textarea id="m-notes" placeholder="Session context, goals, concerns..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeClientModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Set Client</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
+
+// Approximate historical "growth of $10,000" for US Large Cap stocks (log scale data)
+// Annual index values indexed to 10000 in 1926
+const YEARS = [];
+const SP500 = []; // Large cap
+const BONDS = []; // Long-term bonds
+const TBILL = []; // T-bills (cash)
+const INFL  = []; // Inflation adjusted
+
+// Generate approximate data based on known historical returns
+(function buildData() {
+  let sp = 10000, bond = 10000, tb = 10000, infl = 10000;
+  const spReturns = {
+    1926:11.6, 1927:37.5, 1928:43.6, 1929:-8.4, 1930:-24.9, 1931:-43.3, 1932:-8.2,
+    1933:54.0, 1934:-1.4, 1935:47.7, 1936:33.9, 1937:-35.0, 1938:31.1, 1939:-0.4,
+    1940:-9.8, 1941:-11.6, 1942:20.3, 1943:25.9, 1944:19.7, 1945:36.4,
+    1946:-8.1, 1947:5.7, 1948:5.5, 1949:18.8, 1950:31.7, 1951:24.0, 1952:18.4,
+    1953:-1.0, 1954:52.6, 1955:31.6, 1956:6.6, 1957:-10.8, 1958:43.4, 1959:12.0,
+    1960:0.5, 1961:26.9, 1962:-8.7, 1963:22.8, 1964:16.5, 1965:12.5,
+    1966:-10.1, 1967:24.0, 1968:11.1, 1969:-8.5, 1970:4.0, 1971:14.3,
+    1972:19.0, 1973:-14.7, 1974:-26.5, 1975:37.2, 1976:23.6, 1977:-7.2,
+    1978:6.6, 1979:18.2, 1980:32.4, 1981:-4.9, 1982:21.4, 1983:22.5,
+    1984:6.3, 1985:32.2, 1986:18.5, 1987:5.2, 1988:16.8, 1989:31.5,
+    1990:-3.1, 1991:30.5, 1992:7.7, 1993:10.0, 1994:1.3, 1995:37.6,
+    1996:23.0, 1997:33.4, 1998:28.6, 1999:21.0, 2000:-9.1, 2001:-11.9,
+    2002:-22.1, 2003:28.7, 2004:10.9, 2005:4.9, 2006:15.8, 2007:5.5,
+    2008:-37.0, 2009:26.5, 2010:15.1, 2011:2.1, 2012:16.0, 2013:32.4,
+    2014:13.7, 2015:1.4, 2016:12.0, 2017:21.8, 2018:-4.4, 2019:31.5,
+    2020:18.4, 2021:28.7, 2022:-18.1, 2023:26.3, 2024:23.3
+  };
+  const bondReturns = {
+    1926:7.8,1927:8.9,1928:0.1,1929:3.4,1930:4.7,1931:-5.3,1932:16.8,
+    1933:-0.1,1934:10.0,1935:5.0,1936:7.5,1937:0.2,1938:5.5,1939:5.9,
+    1940:6.1,1941:0.9,1942:3.2,1943:2.1,1944:2.8,1945:10.7,
+    1946:-0.1,1947:-2.6,1948:3.4,1949:6.5,1950:0.1,1951:-3.9,1952:1.2,
+    1953:3.6,1954:7.2,1955:-1.3,1956:-5.6,1957:7.5,1958:-6.1,1959:-2.3,
+    1960:13.8,1961:0.97,1962:6.9,1963:1.2,1964:3.5,1965:0.7,
+    1966:3.6,1967:-9.2,1968:-0.3,1969:-8.1,1970:12.1,1971:13.2,
+    1972:5.7,1973:1.1,1974:4.4,1975:9.2,1976:16.8,1977:-0.7,
+    1978:1.3,1979:1.2,1980:-2.6,1981:1.9,1982:40.4,1983:0.7,
+    1984:15.3,1985:30.1,1986:24.5,1987:-2.7,1988:9.7,1989:18.1,
+    1990:6.2,1991:19.3,1992:8.1,1993:18.2,1994:-7.8,1995:31.7,
+    1996:-0.8,1997:15.9,1998:13.1,1999:-8.1,2000:21.5,2001:3.7,
+    2002:17.8,2003:1.5,2004:8.5,2005:7.8,2006:1.2,2007:10.3,
+    2008:25.9,2009:-14.9,2010:10.1,2011:29.9,2012:3.5,2013:-12.7,
+    2014:25.1,2015:-0.8,2016:1.4,2017:8.7,2018:-0.2,2019:14.8,
+    2020:17.9,2021:-4.6,2022:-26.1,2023:3.2,2024:1.3
+  };
+  const tbReturns = {
+    1926:3.3,1927:3.1,1928:3.6,1929:4.7,1930:2.4,1931:1.1,1932:1.0,
+    1933:0.3,1934:0.2,1935:0.2,1936:0.2,1937:0.3,1938:0.0,1939:0.0,
+    1940:0.0,1941:0.1,1942:0.3,1943:0.4,1944:0.4,1945:0.4,
+    1946:0.4,1947:0.5,1948:0.8,1949:1.1,1950:1.2,1951:1.5,1952:1.7,
+    1953:1.8,1954:0.9,1955:1.6,1956:2.5,1957:3.1,1958:1.5,1959:2.9,
+    1960:2.7,1961:2.1,1962:2.7,1963:3.1,1964:3.5,1965:3.9,
+    1966:4.9,1967:4.2,1968:5.2,1969:6.6,1970:6.5,1971:4.3,
+    1972:4.1,1973:7.0,1974:7.9,1975:5.8,1976:5.1,1977:5.1,
+    1978:7.2,1979:10.4,1980:11.2,1981:14.7,1982:10.5,1983:8.8,
+    1984:9.9,1985:7.7,1986:6.2,1987:5.5,1988:6.3,1989:8.4,
+    1990:7.8,1991:5.6,1992:3.5,1993:2.9,1994:3.9,1995:5.6,
+    1996:5.2,1997:5.3,1998:4.9,1999:4.7,2000:5.9,2001:3.4,
+    2002:1.6,2003:1.0,2004:1.2,2005:3.0,2006:4.8,2007:4.7,
+    2008:1.5,2009:0.1,2010:0.1,2011:0.1,2012:0.1,2013:0.1,
+    2014:0.0,2015:0.1,2016:0.3,2017:0.9,2018:1.9,2019:2.1,
+    2020:0.4,2021:0.1,2022:1.8,2023:5.0,2024:5.3
+  };
+
+  for (let y = 1926; y <= 2024; y++) {
+    YEARS.push(y);
+    sp   *= (1 + (spReturns[y]  || 10) / 100);
+    bond *= (1 + (bondReturns[y] || 4) / 100);
+    tb   *= (1 + (tbReturns[y]  || 2) / 100);
+    infl *= (1 + 0.031);
+    SP500.push(sp);
+    BONDS.push(bond);
+    TBILL.push(tb);
+    INFL.push(infl);
+  }
+})();
+
+const RECESSIONS = [
+  {start:1929,end:1933,label:'Great Depression'},
+  {start:1937,end:1938,label:'Recession of 1937'},
+  {start:1945,end:1945,label:'Post-WWII'},
+  {start:1948,end:1949,label:'1948 Recession'},
+  {start:1953,end:1954,label:'1953 Recession'},
+  {start:1957,end:1958,label:'1957 Recession'},
+  {start:1960,end:1961,label:'1960 Recession'},
+  {start:1969,end:1970,label:'1969 Recession'},
+  {start:1973,end:1975,label:'Oil Crisis'},
+  {start:1980,end:1982,label:'Double Dip'},
+  {start:1990,end:1991,label:'Gulf War Recession'},
+  {start:2001,end:2001,label:'Dot-com Bust'},
+  {start:2008,end:2009,label:'Financial Crisis'},
+  {start:2020,end:2020,label:'COVID-19'},
+];
+
+// Layer config
+const LAYERS = [
+  {key:'sp500', label:'US Large Cap (S&P 500)', data:SP500, color:'#c9a84c', on:true},
+  {key:'bonds', label:'Long-Term Bonds', data:BONDS, color:'#4cc9c9', on:true},
+  {key:'tbill', label:'T-Bills (Cash)', data:TBILL, color:'#56c987', on:false},
+  {key:'infl',  label:'Inflation (CPI)', data:INFL,  color:'#9b6fe0', on:false},
+];
+
+// State
+let clientEvents = [
+  {id:1, title:'Started First Job', year:1991, amount:'$32,000/yr', category:'income', color:'#56c987', note:'Entry-level position at manufacturing firm.'},
+  {id:2, title:'Bought First Home', year:1995, amount:'$185,000', category:'purchase', color:'#4cc9c9', note:'30-year fixed mortgage at 7.8%.'},
+  {id:3, title:'First Market Investment', year:1997, amount:'$15,000', category:'invest', color:'#c9a84c', note:'Began contributing to 401(k).'},
+  {id:4, title:'Dot-com Crash Loss', year:2001, amount:'-$22,000', category:'loss', color:'#e05c5c', note:'Lost tech stock position, panic sold.'},
+  {id:5, title:'Started College Savings', year:2004, amount:'$200/mo', category:'invest', color:'#c9a84c', note:'529 plan for two children.'},
+  {id:6, title:'Refinanced Mortgage', year:2013, amount:'4.25% → 3.5%', category:'invest', color:'#56c987', note:'Saved $180/mo.'},
+];
+let nextId = 7;
+let selectedColor = '#c9a84c';
+let rangeStart = 1990;
+let showFill = true;
+let showRecessions = true;
+let showClientEvents = true;
+let selectedEventId = null;
+let hoverYear = null;
+let clientName = 'Robert & Sandra Mercer';
+let clientBirth = 1965;
+let formOpen = false;
+
+// ═══════════════════════════════════════════
+//  RENDER SIDEBAR
+// ═══════════════════════════════════════════
+function renderEvents() {
+  const el = document.getElementById('eventList');
+  if (!clientEvents.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No events yet. Add the first one.</div>';
+    return;
+  }
+  el.innerHTML = clientEvents
+    .sort((a,b) => a.year - b.year)
+    .map(e => `
+      <div class="event-item ${selectedEventId===e.id?'selected':''}" onclick="selectEvent(${e.id})">
+        <div class="event-color" style="background:${e.color}"></div>
+        <div class="event-info">
+          <div class="event-title">${e.title}</div>
+          <div class="event-meta">${e.year} · ${categoryLabel(e.category)}</div>
+          ${e.amount ? `<div class="event-amount">${e.amount}</div>` : ''}
+        </div>
+        <button class="event-delete" onclick="deleteEvent(event,${e.id})">×</button>
+      </div>
+    `).join('');
+}
+
+function categoryLabel(c) {
+  return {income:'Income / Career',invest:'Investment',debt:'Debt',purchase:'Major Purchase',life:'Life Event',loss:'Loss / Setback'}[c] || c;
+}
+
+function renderLayers() {
+  const el = document.getElementById('layerToggles');
+  el.innerHTML = LAYERS.map(l => `
+    <div class="layer-toggle" onclick="toggleLayer('${l.key}',this)">
+      <div class="layer-left">
+        <div class="layer-dot" style="background:${l.color}"></div>
+        <span class="layer-name">${l.label}</span>
+      </div>
+      <div class="toggle-sw ${l.on?'on':''}" id="lt-${l.key}"></div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+//  CANVAS CHART
+// ═══════════════════════════════════════════
+const canvas = document.getElementById('mainChart');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.offsetWidth * devicePixelRatio;
+  canvas.height = wrap.offsetHeight * devicePixelRatio;
+  canvas.style.width = wrap.offsetWidth + 'px';
+  canvas.style.height = wrap.offsetHeight + 'px';
+  draw();
+}
+
+function getFilteredData() {
+  const startIdx = YEARS.indexOf(rangeStart);
+  return {
+    years: YEARS.slice(startIdx),
+    sp: SP500.slice(startIdx),
+    bonds: BONDS.slice(startIdx),
+    tbill: TBILL.slice(startIdx),
+    infl: INFL.slice(startIdx),
+  };
+}
+
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  const dpr = devicePixelRatio;
+  ctx.clearRect(0,0,W,H);
+
+  const PAD = {top: 30*dpr, right: 20*dpr, bottom: 50*dpr, left: 80*dpr};
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+
+  const fd = getFilteredData();
+  const allVals = [
+    ...fd.sp,
+    ...(LAYERS[1].on ? fd.bonds : []),
+    ...(LAYERS[2].on ? fd.tbill : []),
+    ...(LAYERS[3].on ? fd.infl : []),
+  ];
+  const maxV = Math.max(...allVals) * 1.05;
+  const minV = 1;
+
+  const xScale = (i) => PAD.left + (i / (fd.years.length - 1)) * chartW;
+  const yScale = (v) => {
+    const log = Math.log10(v / minV) / Math.log10(maxV / minV);
+    return PAD.top + chartH - log * chartH;
+  };
+
+  // ── Background
+  ctx.fillStyle = '#0a0d14';
+  ctx.fillRect(0,0,W,H);
+
+  // ── Grid lines
+  const gridValues = [100, 1000, 10000, 100000, 1000000, 10000000];
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  ctx.font = `${10*dpr}px 'DM Mono'`;
+  ctx.fillStyle = '#4a5168';
+  ctx.textAlign = 'right';
+
+  gridValues.forEach(v => {
+    if (v < maxV * 0.9) {
+      const y = yScale(v);
+      if (y > PAD.top && y < PAD.top + chartH) {
+        ctx.beginPath();
+        ctx.moveTo(PAD.left, y);
+        ctx.lineTo(PAD.left + chartW, y);
+        ctx.stroke();
+        ctx.fillText(formatVal(v), PAD.left - 6, y + 4);
+      }
+    }
+  });
+
+  // ── Year labels
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#4a5168';
+  const step = fd.years.length > 50 ? 10 : fd.years.length > 25 ? 5 : 2;
+  fd.years.forEach((y, i) => {
+    if ((y - fd.years[0]) % step === 0) {
+      const x = xScale(i);
+      ctx.fillText(y, x, PAD.top + chartH + 18*dpr);
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.beginPath();
+      ctx.moveTo(x, PAD.top);
+      ctx.lineTo(x, PAD.top + chartH);
+      ctx.stroke();
+    }
+  });
+
+  // ── Recessions
+  if (showRecessions) {
+    fd.years.forEach((y, i) => {
+      const rec = RECESSIONS.find(r => y >= r.start && y <= r.end);
+      if (rec) {
+        const x0 = xScale(i);
+        const x1 = i < fd.years.length-1 ? xScale(i+1) : x0 + chartW / fd.years.length;
+        ctx.fillStyle = 'rgba(224,92,92,0.08)';
+        ctx.fillRect(x0, PAD.top, x1 - x0, chartH);
+      }
+    });
+  }
+
+  // ── Draw each layer
+  const layerDataMap = {sp500: fd.sp, bonds: fd.bonds, tbill: fd.tbill, infl: fd.infl};
+  LAYERS.forEach(layer => {
+    if (!layer.on) return;
+    const data = layerDataMap[layer.key];
+
+    if (showFill) {
+      // Fill gradient
+      const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + chartH);
+      grad.addColorStop(0, layer.color + '22');
+      grad.addColorStop(1, layer.color + '00');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(xScale(0), PAD.top + chartH);
+      data.forEach((v,i) => ctx.lineTo(xScale(i), yScale(v)));
+      ctx.lineTo(xScale(data.length-1), PAD.top + chartH);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = layer.color;
+    ctx.lineWidth = 2 * dpr;
+    ctx.lineJoin = 'round';
+    data.forEach((v,i) => {
+      if (i===0) ctx.moveTo(xScale(i), yScale(v));
+      else ctx.lineTo(xScale(i), yScale(v));
+    });
+    ctx.stroke();
+  });
+
+  // ── Client events
+  if (showClientEvents) {
+    clientEvents.forEach(evt => {
+      const idx = fd.years.indexOf(evt.year);
+      if (idx < 0) return;
+      const x = xScale(idx);
+      const spV = fd.sp[idx];
+      const y = yScale(spV);
+
+      // Vertical line
+      ctx.strokeStyle = evt.color;
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.setLineDash([4*dpr, 4*dpr]);
+      ctx.beginPath();
+      ctx.moveTo(x, PAD.top + chartH);
+      ctx.lineTo(x, y + 20*dpr);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Circle
+      ctx.beginPath();
+      ctx.arc(x, y + 8*dpr, 6*dpr, 0, Math.PI*2);
+      ctx.fillStyle = selectedEventId === evt.id ? 'white' : evt.color;
+      ctx.fill();
+      ctx.strokeStyle = evt.color;
+      ctx.lineWidth = 2*dpr;
+      ctx.stroke();
+
+      // Label
+      ctx.font = `bold ${9*dpr}px 'DM Sans'`;
+      ctx.fillStyle = evt.color;
+      ctx.textAlign = 'center';
+      const label = evt.title.length > 14 ? evt.title.slice(0,13)+'…' : evt.title;
+      ctx.fillText(label, x, PAD.top + chartH + 35*dpr);
+    });
+  }
+
+  // ── Hover vertical line
+  if (hoverYear !== null) {
+    const idx = fd.years.indexOf(hoverYear);
+    if (idx >= 0) {
+      const x = xScale(idx);
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 1 * dpr;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(x, PAD.top);
+      ctx.lineTo(x, PAD.top + chartH);
+      ctx.stroke();
+    }
+  }
+
+  // ── Legend
+  let lx = PAD.left + 12*dpr, ly = PAD.top + 12*dpr;
+  ctx.font = `${10*dpr}px 'DM Sans'`;
+  LAYERS.filter(l=>l.on).forEach(l => {
+    ctx.fillStyle = l.color;
+    ctx.fillRect(lx, ly - 6*dpr, 20*dpr, 3*dpr);
+    ctx.fillStyle = '#8891aa';
+    ctx.textAlign = 'left';
+    ctx.fillText(l.label, lx + 26*dpr, ly);
+    lx += ctx.measureText(l.label).width + 60*dpr;
+  });
+}
+
+function formatVal(v) {
+  if (v >= 1e6) return '$' + (v/1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return '$' + (v/1e3).toFixed(0) + 'K';
+  return '$' + v.toFixed(0);
+}
+
+// ═══════════════════════════════════════════
+//  MOUSE INTERACTION
+// ═══════════════════════════════════════════
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = devicePixelRatio;
+  const mx = (e.clientX - rect.left) * dpr;
+  const my = (e.clientY - rect.top) * dpr;
+  const H = canvas.height, W = canvas.width;
+  const PAD = {top: 30*dpr, right: 20*dpr, bottom: 50*dpr, left: 80*dpr};
+  const chartW = W - PAD.left - PAD.right;
+
+  const fd = getFilteredData();
+  const relX = (mx - PAD.left) / chartW;
+  const idx = Math.round(relX * (fd.years.length - 1));
+  if (idx < 0 || idx >= fd.years.length) { hideTooltip(); return; }
+
+  hoverYear = fd.years[idx];
+  draw();
+
+  // Build tooltip
+  const tooltip = document.getElementById('tooltip');
+  const spV = fd.sp[idx];
+  const bondV = LAYERS[1].on ? fd.bonds[idx] : null;
+  const event = clientEvents.find(ev => ev.year === hoverYear);
+
+  let html = `<div class="tooltip-year">${hoverYear}</div>`;
+  html += `<div class="tooltip-row"><span class="tooltip-label">Large Cap</span><span class="tooltip-val" style="color:#c9a84c">${formatVal(spV)}</span></div>`;
+  if (bondV) html += `<div class="tooltip-row"><span class="tooltip-label">Bonds</span><span class="tooltip-val" style="color:#4cc9c9">${formatVal(bondV)}</span></div>`;
+  if (event) {
+    html += `<div class="tooltip-event"><div class="tooltip-event-name" style="color:${event.color}">${event.title}</div>`;
+    if (event.amount) html += `<div style="font-family:'DM Mono',monospace;color:${event.color};font-size:12px;margin-top:2px">${event.amount}</div>`;
+    html += `</div>`;
+  }
+
+  tooltip.innerHTML = html;
+  tooltip.style.opacity = '1';
+
+  let tx = e.clientX - rect.left + 16;
+  let ty = e.clientY - rect.top - 10;
+  if (tx + 200 > rect.width) tx = e.clientX - rect.left - 210;
+  tooltip.style.left = tx + 'px';
+  tooltip.style.top = ty + 'px';
+});
+
+canvas.addEventListener('mouseleave', () => {
+  hoverYear = null;
+  hideTooltip();
+  draw();
+});
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = devicePixelRatio;
+  const mx = (e.clientX - rect.left) * dpr;
+  const W = canvas.width;
+  const PAD_L = 80*dpr, PAD_R = 20*dpr;
+  const chartW = W - PAD_L - PAD_R;
+  const fd = getFilteredData();
+  const relX = (mx - PAD_L) / chartW;
+  const idx = Math.round(relX * (fd.years.length - 1));
+  if (idx < 0 || idx >= fd.years.length) return;
+  const year = fd.years[idx];
+
+  const event = clientEvents.find(ev => ev.year === year);
+  if (event) {
+    showPopup(event, e.clientX - rect.left, e.clientY - rect.top);
+    selectEvent(event.id);
+  }
+});
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.opacity = '0';
+}
+
+function showPopup(evt, x, y) {
+  const popup = document.getElementById('evtPopup');
+  document.getElementById('popYear').textContent = evt.year + ' · ' + categoryLabel(evt.category);
+  document.getElementById('popTitle').textContent = evt.title;
+  document.getElementById('popTitle').style.color = evt.color;
+  document.getElementById('popAmount').textContent = evt.amount || '';
+  document.getElementById('popAmount').style.color = evt.color;
+  document.getElementById('popNote').textContent = evt.note || '';
+
+  const wrap = canvas.parentElement;
+  let px = x + 16, py = y - 20;
+  if (px + 260 > wrap.offsetWidth) px = x - 260;
+  if (py + 150 > wrap.offsetHeight) py = y - 150;
+
+  popup.style.left = px + 'px';
+  popup.style.top = py + 'px';
+  popup.style.display = 'block';
+}
+
+function closePopup() {
+  document.getElementById('evtPopup').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════
+function switchTab(el, tab) {
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-events').style.display = tab==='events' ? 'block' : 'none';
+  document.getElementById('tab-layers').style.display = tab==='layers' ? 'block' : 'none';
+}
+
+function toggleForm() {
+  formOpen = !formOpen;
+  document.getElementById('addForm').classList.toggle('open', formOpen);
+}
+
+function pickColor(el) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  selectedColor = el.dataset.c;
+}
+
+function addEvent() {
+  const title = document.getElementById('f-title').value.trim();
+  const year = parseInt(document.getElementById('f-year').value);
+  const amount = document.getElementById('f-amount').value.trim();
+  const category = document.getElementById('f-category').value;
+  const note = document.getElementById('f-note').value.trim();
+
+  if (!title || !year || year < 1926 || year > 2024) {
+    document.getElementById('f-year').style.borderColor = 'var(--red)';
+    return;
+  }
+
+  clientEvents.push({ id: nextId++, title, year, amount, category, color: selectedColor, note });
+  toggleForm();
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-year').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-note').value = '';
+  document.getElementById('f-year').style.borderColor = '';
+  renderEvents();
+  updateInsights();
+  draw();
+}
+
+function deleteEvent(e, id) {
+  e.stopPropagation();
+  clientEvents = clientEvents.filter(ev => ev.id !== id);
+  if (selectedEventId === id) selectedEventId = null;
+  renderEvents();
+  updateInsights();
+  draw();
+}
+
+function selectEvent(id) {
+  selectedEventId = selectedEventId === id ? null : id;
+  renderEvents();
+  draw();
+}
+
+function setRange(start, btn) {
+  rangeStart = start;
+  document.querySelectorAll('.tr-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  closePopup();
+  draw();
+}
+
+function toggleLayer(key, el) {
+  const layer = LAYERS.find(l => l.key === key);
+  layer.on = !layer.on;
+  el.querySelector('.toggle-sw').classList.toggle('on', layer.on);
+  draw();
+}
+
+function toggleFill(el) {
+  showFill = !showFill;
+  document.getElementById('fillToggle').classList.toggle('on', showFill);
+  draw();
+}
+
+function toggleRecessions(el) {
+  showRecessions = !showRecessions;
+  document.getElementById('recToggle').classList.toggle('on', showRecessions);
+  draw();
+}
+
+function toggleEvents(el) {
+  showClientEvents = !showClientEvents;
+  document.getElementById('evtToggle').classList.toggle('on', showClientEvents);
+  draw();
+}
+
+function updateInsights() {
+  const count = clientEvents.length;
+  document.getElementById('ins-count').textContent = count;
+
+  if (count === 0) {
+    document.getElementById('ins-entry').textContent = '—';
+    document.getElementById('ins-best').textContent = '—';
+    document.getElementById('ins-rec').textContent = '—';
+    document.getElementById('ins-narrative').textContent = 'Add life events to generate a personalized narrative.';
+    return;
+  }
+
+  const sorted = [...clientEvents].sort((a,b) => a.year - b.year);
+  document.getElementById('ins-entry').textContent = sorted[0].year;
+
+  // Best year for sp500 in range
+  let bestYear = null, bestRet = -99;
+  for (let i = 1; i < YEARS.length; i++) {
+    const ret = (SP500[i] / SP500[i-1] - 1) * 100;
+    if (YEARS[i] >= sorted[0].year && ret > bestRet) { bestRet = ret; bestYear = YEARS[i]; }
+  }
+  document.getElementById('ins-best').textContent = bestYear ? `${bestYear} (+${bestRet.toFixed(0)}%)` : '—';
+
+  // Recessions during client's events range
+  const minYear = sorted[0].year;
+  const maxYear = sorted[sorted.length-1].year;
+  const recCount = RECESSIONS.filter(r => r.start >= minYear && r.start <= maxYear).length;
+  document.getElementById('ins-rec').textContent = recCount;
+
+  // Narrative
+  const investEvents = clientEvents.filter(e => e.category === 'invest' || e.category === 'income');
+  const lossEvents = clientEvents.filter(e => e.category === 'loss');
+  let narrative = `${clientName} began their financial journey in ${sorted[0].year}`;
+  if (investEvents.length) narrative += `, making ${investEvents.length} key investment move${investEvents.length>1?'s':''}`;
+  if (lossEvents.length) narrative += ` and weathering ${lossEvents.length} significant setback${lossEvents.length>1?'s':''}`;
+  narrative += `. They lived through ${recCount} recession${recCount!==1?'s':''} during this period.`;
+  document.getElementById('ins-narrative').textContent = narrative;
+}
+
+function openClientModal() {
+  document.getElementById('m-name').value = clientName;
+  document.getElementById('m-birth').value = clientBirth;
+  document.getElementById('clientModal').classList.add('open');
+}
+
+function closeClientModal() {
+  document.getElementById('clientModal').classList.remove('open');
+}
+
+function saveClient() {
+  const name = document.getElementById('m-name').value.trim();
+  const birth = parseInt(document.getElementById('m-birth').value);
+  if (name) {
+    clientName = name;
+    clientBirth = birth || clientBirth;
+    document.getElementById('clientNameDisplay').textContent = clientName;
+    updateInsights();
+  }
+  closeClientModal();
+}
+
+function exportView() {
+  const a = document.createElement('a');
+  a.download = `LifeLine-${clientName.replace(/\s+/g,'-')}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+window.addEventListener('resize', resize);
+renderEvents();
+renderLayers();
+updateInsights();
+resize();
+</script>
+</body>
+</html>
