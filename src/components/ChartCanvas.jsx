@@ -111,17 +111,17 @@ export default function ChartCanvas({
       const eventsInRange = events.filter(
         (ev) => ev.date >= visStart && ev.date <= visEnd
       );
-      let nearest = null;
+      let nearestYear = null;
       let minDist = 3;
       for (const ev of eventsInRange) {
         const dist = Math.abs(ev.date - year);
-        if (dist < minDist) {
-          minDist = dist;
-          nearest = ev;
-        }
+        if (dist < minDist) { minDist = dist; nearestYear = ev.date; }
       }
-      if (nearest) {
-        onEventClick?.(nearest);
+      if (nearestYear !== null) {
+        const yearEvents = eventsInRange
+          .filter((ev) => ev.date === nearestYear)
+          .sort((a, b) => b.magnitude - a.magnitude);
+        onEventClick?.(yearEvents);
         return;
       }
     }

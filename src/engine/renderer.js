@@ -215,46 +215,90 @@ function _drawEventMarkers(ctx, dpr, PAD, chartW, chartH, events, years, visStar
     (e) => e.date >= visStart && e.date <= visEnd
   );
 
+  // Group by year, sort within each group highest magnitude first
+  const byYear = {};
+  for (const evt of domainEvents) {
+    if (!byYear[evt.date]) byYear[evt.date] = [];
+    byYear[evt.date].push(evt);
+  }
+  for (const yr of Object.keys(byYear)) {
+    byYear[yr].sort((a, b) => b.magnitude - a.magnitude);
+  }
+
+  // Tiers: landmark ≥7, notable 4–6, minor <4
   for (const evt of domainEvents) {
     const i = visYears.indexOf(evt.date);
     if (i < 0) continue;
 
-    const x = _xScale(i, totalPoints, PAD, chartW);
+    const group = byYear[evt.date];
+    const pos = group.indexOf(evt);
+    const spread = group.length > 1 ? (pos - (group.length - 1) / 2) * 2.5 * dpr : 0;
+    const x = _xScale(i, totalPoints, PAD, chartW) + spread;
+
     const color = domain.color_scheme[evt.direction] || domain.color_scheme.primary;
     const isSelected = selectedEventId === evt.id;
     const isHovered = hoveredYear === evt.date;
 
-    const markerH = (evt.magnitude / 10) * chartH;
-    const lineW = isSelected || isHovered ? 3 * dpr : 1.5 * dpr;
+    const isLandmark = evt.magnitude >= 7;
+    const isNotable  = evt.magnitude >= 4 && evt.magnitude < 7;
 
-    ctx.strokeStyle = color + (isSelected ? 'ff' : 'bb');
+    const baseOpacity = isLandmark ? 1.0 : isNotable ? 0.75 : 0.45;
+    ctx.globalAlpha = (isSelected || isHovered) ? 1.0 : baseOpacity;
+
+    const markerH = isLandmark
+      ? (evt.magnitude / 10) * chartH
+      : isNotable
+      ? Math.min((evt.magnitude / 10) * chartH, chartH * 0.4)
+      : chartH * 0.14;
+
+    const lineW = isLandmark
+      ? ((isSelected || isHovered) ? 2.5 * dpr : 1.5 * dpr)
+      : isNotable ? 1 * dpr : 0.75 * dpr;
+
+    ctx.strokeStyle = color;
     ctx.lineWidth = lineW;
-    ctx.setLineDash([4 * dpr, 4 * dpr]);
+    ctx.setLineDash(isLandmark ? [4 * dpr, 3 * dpr] : []);
     ctx.beginPath();
     ctx.moveTo(x, PAD.top + chartH);
     ctx.lineTo(x, PAD.top + chartH - markerH);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Diamond at top
-    const dx = x;
-    const dy = PAD.top + chartH - markerH;
-    const ds = (isSelected ? 6 : 5) * dpr;
+    const tipY = PAD.top + chartH - markerH;
     ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(dx, dy - ds);
-    ctx.lineTo(dx + ds, dy);
-    ctx.lineTo(dx, dy + ds);
-    ctx.lineTo(dx - ds, dy);
-    ctx.closePath();
-    ctx.fill();
 
-    // Label below X axis (truncated)
-    const label = evt.title.length > 12 ? evt.title.slice(0, 12) + '…' : evt.title;
-    ctx.font = `${8 * dpr}px 'DM Sans', sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillStyle = isSelected ? color : '#999999';
-    ctx.fillText(label, x, PAD.top + chartH + 34 * dpr);
+    if (isLandmark) {
+      // Diamond
+      const ds = (isSelected ? 6 : 5) * dpr;
+      ctx.beginPath();
+      ctx.moveTo(x, tipY - ds);
+      ctx.lineTo(x + ds, tipY);
+      ctx.lineTo(x, tipY + ds);
+      ctx.lineTo(x - ds, tipY);
+      ctx.closePath();
+      ctx.fill();
+    } else if (isNotable) {
+      // Small circle
+      ctx.beginPath();
+      ctx.arc(x, tipY, 3 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Tiny square tick
+      const s = 1.5 * dpr;
+      ctx.fillRect(x - s, tipY - s, s * 2, s * 2);
+    }
+
+    // Axis label — landmark events only
+    if (isLandmark) {
+      const label = evt.title.length > 12 ? evt.title.slice(0, 12) + '…' : evt.title;
+      ctx.font = `${8 * dpr}px 'DM Sans', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = isSelected ? color : '#999999';
+      ctx.globalAlpha = (isSelected || isHovered) ? 1.0 : 0.85;
+      ctx.fillText(label, x, PAD.top + chartH + 34 * dpr);
+    }
+
+    ctx.globalAlpha = 1.0;
   }
 }
 

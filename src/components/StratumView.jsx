@@ -127,18 +127,24 @@ export default function StratumView({ domainId, onChangeDomain }) {
     }
   }, [domain]);
 
-  const selectedEvent = useMemo(
-    () => events.find((e) => e.id === selectedEventId) || null,
-    [events, selectedEventId]
-  );
+  const [selectedYearEvents, setSelectedYearEvents] = useState([]);
 
   // Handlers
   const handleHoverChange = useCallback((year) => {
     setHoveredYear(year);
   }, []);
 
-  const handleEventClick = useCallback((evt) => {
-    setSelectedEventId((prev) => (prev === evt.id ? null : evt.id));
+  const handleEventClick = useCallback((evts) => {
+    const clickedYear = evts[0]?.date;
+    setSelectedYearEvents((prev) => {
+      const isSame = prev.length > 0 && prev[0].date === clickedYear;
+      return isSame ? [] : evts;
+    });
+    setSelectedEventId((prev) => {
+      const firstId = evts[0]?.id;
+      const isSame = prev === firstId;
+      return isSame ? null : firstId;
+    });
     setSelectedOverlayId(null);
   }, []);
 
@@ -319,11 +325,11 @@ export default function StratumView({ domainId, onChangeDomain }) {
           />
 
           {/* Event detail */}
-          {selectedEvent && (
+          {selectedYearEvents.length > 0 && (
             <EventDetailPanel
               domain={domain}
-              event={selectedEvent}
-              onClose={() => setSelectedEventId(null)}
+              events={selectedYearEvents}
+              onClose={() => { setSelectedYearEvents([]); setSelectedEventId(null); }}
             />
           )}
 
