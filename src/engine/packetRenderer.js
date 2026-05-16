@@ -20,7 +20,7 @@ function yearToX(year, visStart, visEnd, PAD, chartW) {
 
 function renderBandPacket(ctx, packet, visStart, visEnd, PAD, chartW, chartH, dpr) {
   const { render: renderOpts = {}, data = [], legend = [] } = packet;
-  const opacity = renderOpts.opacity ?? 0.09;
+  const opacity = renderOpts.opacity ?? 0.13;
   const labelOpacity = renderOpts.label_opacity ?? 0.45;
   const showLabels = renderOpts.show_labels !== false;
   const minBandWidth = (renderOpts.min_band_width_for_label ?? 18) * dpr;

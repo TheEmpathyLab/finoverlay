@@ -10,73 +10,104 @@ export default function EventDetailPanel({ domain, event, onClose }) {
 
   return (
     <div
-      className="shrink-0 px-6 py-4"
+      className="shrink-0"
       style={{
         background: 'var(--surface)',
-        borderTop: '1px solid var(--border)',
-        maxHeight: 200,
+        borderTop: `3px solid ${color}`,
+        maxHeight: 210,
         overflowY: 'auto',
+        padding: '16px 24px',
       }}
     >
-      <div className="flex items-start justify-between gap-4">
-        {/* Left: content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap mb-2">
-            <span className="font-serif text-lg" style={{ color: 'var(--text)' }}>
-              {event.title}
-            </span>
-            <span
-              className="text-xs px-2 py-0.5 rounded"
-              style={{
-                background: 'var(--surface2)',
-                border: '1px solid var(--border)',
-                color: 'var(--text-dim)',
-              }}
-            >
-              {event.date}
-            </span>
-            <span
-              className="text-xs px-2 py-0.5 rounded uppercase tracking-wide"
-              style={{ background: color + '22', color, border: `1px solid ${color}55` }}
-            >
-              {event.category}
-            </span>
-            <span
-              className="text-xs px-2 py-0.5 rounded"
-              style={{ background: color + '22', color }}
-            >
-              {dirLabel}
-            </span>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+        {/* Content */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Dateline */}
+          <div
+            style={{
+              fontSize: '0.6rem',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
+              marginBottom: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              flexWrap: 'wrap',
+            }}
+          >
+            <span>{event.date}</span>
+            <span style={{ color: 'var(--border)' }}>—</span>
+            {event.category && <span>{event.category}</span>}
+            {event.category && <span style={{ color: 'var(--border)' }}>—</span>}
+            <span style={{ color }}>{dirLabel}</span>
+          </div>
+
+          {/* Headline */}
+          <div
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '1.15rem',
+              fontWeight: 700,
+              color: 'var(--text)',
+              lineHeight: 1.25,
+              marginBottom: 8,
+            }}
+          >
+            {event.title}
           </div>
 
           {/* Magnitude */}
-          <div className="flex items-center gap-2 mb-2">
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 8,
+            }}
+          >
             <span
-              className="text-xs"
-              style={{ color: 'var(--text-muted)' }}
+              style={{
+                fontSize: '0.58rem',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--text-muted)',
+              }}
             >
-              {domain?.magnitude_label || 'Magnitude'}:
+              {domain?.magnitude_label || 'Magnitude'}
             </span>
-            <div className="flex gap-1">
+            <div style={{ display: 'flex', gap: 3 }}>
               {dots.map((d) => (
                 <div
                   key={d}
-                  className="rounded-full"
                   style={{
-                    width: 8,
-                    height: 8,
-                    background: d <= event.magnitude ? color : 'var(--surface2)',
-                    border: `1px solid ${d <= event.magnitude ? color : 'var(--border)'}`,
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    background: d <= event.magnitude ? color : 'var(--border)',
                   }}
                 />
               ))}
             </div>
-            <span className="text-xs font-mono" style={{ color }}>
+            <span
+              style={{
+                fontSize: '0.68rem',
+                fontFamily: "'DM Mono', monospace",
+                color: 'var(--text-dim)',
+              }}
+            >
               {event.magnitude}/10
             </span>
           </div>
 
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-dim)' }}>
+          {/* Body */}
+          <p
+            style={{
+              fontSize: '0.82rem',
+              lineHeight: 1.6,
+              color: 'var(--text-dim)',
+            }}
+          >
             {event.description}
           </p>
 
@@ -85,8 +116,14 @@ export default function EventDetailPanel({ domain, event, onClose }) {
               href={event.source_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs mt-2 inline-block"
-              style={{ color: 'var(--gold)' }}
+              style={{
+                display: 'inline-block',
+                marginTop: 8,
+                fontSize: '0.72rem',
+                color: 'var(--text-dim)',
+                textDecoration: 'underline',
+                textUnderlineOffset: 2,
+              }}
             >
               Source →
             </a>
@@ -96,7 +133,6 @@ export default function EventDetailPanel({ domain, event, onClose }) {
         {/* Close */}
         <button
           onClick={onClose}
-          className="shrink-0 text-sm transition-colors"
           style={{
             background: 'none',
             border: 'none',
@@ -105,6 +141,8 @@ export default function EventDetailPanel({ domain, event, onClose }) {
             fontSize: 18,
             lineHeight: 1,
             padding: '2px 4px',
+            flexShrink: 0,
+            transition: 'color 0.15s',
           }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}

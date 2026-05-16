@@ -180,12 +180,12 @@ export default function StratumView({ domainId, onChangeDomain }) {
     ectx.drawImage(canvas, 0, 0);
 
     // Footer background
-    ectx.fillStyle = '#111520';
+    ectx.fillStyle = '#f2f1ee';
     ectx.fillRect(0, canvas.height, canvas.width, footerH * dpr);
 
     // Footer text
     ectx.font = `${11 * dpr}px 'DM Sans', sans-serif`;
-    ectx.fillStyle = '#8891aa';
+    ectx.fillStyle = '#888888';
     ectx.textAlign = 'left';
     ectx.fillText(
       `${domain?.name || 'Stratum'} · ${overlayEntries.length} overlay entries · ${new Date().toLocaleDateString()}`,
@@ -194,7 +194,7 @@ export default function StratumView({ domainId, onChangeDomain }) {
     );
 
     ectx.textAlign = 'right';
-    ectx.fillStyle = '#c9a84c';
+    ectx.fillStyle = '#b5893a';
     ectx.font = `italic ${11 * dpr}px 'Playfair Display', serif`;
     ectx.fillText('Stratum', exportCanvas.width - 16 * dpr, canvas.height + 25 * dpr);
 

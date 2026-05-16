@@ -39,12 +39,12 @@ export default function Sidebar({
         style={{ borderBottom: '1px solid var(--border)' }}
       >
         <TabButton
-          label="Overlay Entries"
+          label="Overlay"
           active={activeTab === 'overlay'}
           onClick={() => setActiveTab('overlay')}
         />
         <TabButton
-          label="Domain Layers"
+          label="Layers"
           active={activeTab === 'layers'}
           onClick={() => setActiveTab('layers')}
         />
@@ -87,14 +87,19 @@ function TabButton({ label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex-1 py-3 text-xs transition-all"
       style={{
+        flex: 1,
+        padding: '11px 0',
         background: 'transparent',
         border: 'none',
-        borderBottom: `2px solid ${active ? 'var(--gold)' : 'transparent'}`,
-        color: active ? 'var(--gold)' : 'var(--text-dim)',
+        borderBottom: `2px solid ${active ? 'var(--text)' : 'transparent'}`,
+        color: active ? 'var(--text)' : 'var(--text-muted)',
         cursor: 'pointer',
         fontFamily: 'inherit',
+        fontSize: '0.62rem',
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        transition: 'color 0.15s',
       }}
     >
       {label}
@@ -118,7 +123,6 @@ function LayersPanel({
 }) {
   const hasSeries = domain?.series && domain.series.length > 0;
 
-  // Filter packets compatible with this domain's time range
   const compatiblePackets = (packetRegistry || []).filter((p) => {
     if (!domain) return false;
     if (!p.compatible_x_units.includes(domain.x_unit)) return false;
@@ -128,11 +132,10 @@ function LayersPanel({
   });
 
   return (
-    <div className="overflow-y-auto h-full px-4 py-3">
-      {/* Context Packets */}
+    <div className="overflow-y-auto h-full px-4 py-4">
       <SectionLabel>Context Packets</SectionLabel>
       {compatiblePackets.length === 0 && (
-        <div className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 12, fontStyle: 'italic' }}>
           No packets available for this domain.
         </div>
       )}
@@ -164,14 +167,14 @@ function LayersPanel({
       {hasSeries && (
         <LayerToggle
           label="Fill under curves"
-          color="var(--gold)"
+          color="var(--text-dim)"
           on={showFill}
           onClick={onToggleFill}
         />
       )}
       <LayerToggle
         label="Show domain events"
-        color="var(--teal)"
+        color="var(--text-dim)"
         on={showEvents}
         onClick={onToggleEvents}
       />
@@ -186,32 +189,37 @@ function LayersPanel({
 }
 
 function PacketToggle({ meta, on, onClick }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <div
-      className="mb-2 px-3 py-2 rounded-lg cursor-pointer transition-all"
       style={{
-        background: 'var(--surface2)',
-        border: `1px solid ${on ? 'rgba(201,168,76,0.4)' : 'var(--border)'}`,
+        marginBottom: 8,
+        padding: '10px 12px',
+        background: on ? 'var(--surface2)' : hovered ? 'var(--surface2)' : 'transparent',
+        border: '1px solid var(--border)',
+        borderLeft: `3px solid ${on ? 'var(--text)' : 'var(--border)'}`,
+        cursor: 'pointer',
+        transition: 'all 0.15s',
       }}
       onClick={onClick}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = on ? 'rgba(201,168,76,0.4)' : 'var(--border)'; }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-0.5">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 2 }}>
             {(meta.legend || []).slice(0, 3).map((l) => (
               <div
                 key={l.label}
-                style={{ width: 6, height: 10, borderRadius: 2, background: l.color, opacity: 0.8 }}
+                style={{ width: 5, height: 12, background: l.color, opacity: 0.75 }}
               />
             ))}
           </div>
-          <span className="text-sm" style={{ color: 'var(--text)' }}>{meta.name}</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text)' }}>{meta.name}</span>
         </div>
         <div className={`toggle-sw ${on ? 'on' : ''}`} />
       </div>
-      <div className="text-xs mt-1" style={{ color: 'var(--text-muted)', paddingLeft: 18 }}>
+      <div style={{ fontSize: '0.68rem', marginTop: 4, color: 'var(--text-muted)', paddingLeft: 17 }}>
         {meta.description}
       </div>
     </div>
@@ -221,8 +229,16 @@ function PacketToggle({ meta, on, onClick }) {
 function SectionLabel({ children }) {
   return (
     <div
-      className="text-xs uppercase tracking-widest mb-2 mt-4 first:mt-0"
-      style={{ color: 'var(--text-muted)' }}
+      style={{
+        fontSize: '0.58rem',
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: 'var(--text-muted)',
+        marginBottom: 8,
+        marginTop: 16,
+        paddingBottom: 5,
+        borderBottom: '1px solid var(--border)',
+      }}
     >
       {children}
     </div>
@@ -230,23 +246,29 @@ function SectionLabel({ children }) {
 }
 
 function LayerToggle({ label, color, on, onClick }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <div
-      className="flex items-center justify-between px-3 py-2 rounded-lg mb-2 cursor-pointer transition-all"
       style={{
-        background: 'var(--surface2)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '8px 10px',
+        marginBottom: 6,
+        background: hovered ? 'var(--surface2)' : 'transparent',
         border: '1px solid var(--border)',
+        cursor: 'pointer',
+        transition: 'background 0.15s',
       }}
       onClick={onClick}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex items-center gap-2">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div
-          className="rounded-full"
-          style={{ width: 10, height: 10, background: color, flexShrink: 0 }}
+          style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }}
         />
-        <span className="text-sm" style={{ color: 'var(--text)' }}>
+        <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
           {label}
         </span>
       </div>

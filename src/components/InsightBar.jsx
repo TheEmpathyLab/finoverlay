@@ -25,103 +25,111 @@ export default function InsightBar({ domain, events, overlayEntries }) {
 
   return (
     <div
-      className="flex items-center gap-6 px-6 py-3 shrink-0 overflow-x-auto"
       style={{
         background: 'var(--surface)',
         borderTop: '1px solid var(--border)',
-        minHeight: 72,
+        minHeight: 64,
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 24px',
+        overflowX: 'auto',
+        gap: 0,
       }}
     >
       {/* Stats */}
-      <InsightItem
-        label="Overlay Entries"
-        value={overlayEntries.length}
-        className="gold"
-      />
-      <Divider />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+        <InsightItem label="Entries" value={overlayEntries.length} accent="var(--gold)" />
+        <Divider />
 
-      {overlayEntries.length > 0 && (
-        <>
-          <InsightItem
-            label="Date Range"
-            value={`${spanStart}–${spanEnd}`}
-            className="gold"
-          />
-          <Divider />
-        </>
-      )}
+        {overlayEntries.length > 0 && (
+          <>
+            <InsightItem label="Range" value={`${spanStart}–${spanEnd}`} />
+            <Divider />
+          </>
+        )}
 
-      {isFinancial ? (
-        <>
-          <InsightItem
-            label="Market Events in Range"
-            value={overlayEntries.length > 0 ? eventsInSpan.length : '—'}
-          />
-          <Divider />
-          <InsightItem
-            label="Contractions"
-            value={overlayEntries.length > 0 ? restrictsCount : '—'}
-            className="neg"
-          />
-        </>
-      ) : (
-        <>
-          <InsightItem
-            label="Decisions in Range"
-            value={overlayEntries.length > 0 ? eventsInSpan.length : '—'}
-          />
-          <Divider />
-          <InsightItem
-            label="Expanding"
-            value={overlayEntries.length > 0 ? expandsCount : '—'}
-            className="pos"
-          />
-          <Divider />
-          <InsightItem
-            label="Restricting"
-            value={overlayEntries.length > 0 ? restrictsCount : '—'}
-            className="neg"
-          />
-        </>
-      )}
+        {isFinancial ? (
+          <>
+            <InsightItem
+              label="Events in Range"
+              value={overlayEntries.length > 0 ? eventsInSpan.length : '—'}
+            />
+            <Divider />
+            <InsightItem
+              label="Contractions"
+              value={overlayEntries.length > 0 ? restrictsCount : '—'}
+              accent="var(--red)"
+            />
+          </>
+        ) : (
+          <>
+            <InsightItem
+              label="Decisions"
+              value={overlayEntries.length > 0 ? eventsInSpan.length : '—'}
+            />
+            <Divider />
+            <InsightItem
+              label="Expanding"
+              value={overlayEntries.length > 0 ? expandsCount : '—'}
+              accent="var(--green)"
+            />
+            <Divider />
+            <InsightItem
+              label="Restricting"
+              value={overlayEntries.length > 0 ? restrictsCount : '—'}
+              accent="var(--red)"
+            />
+          </>
+        )}
+      </div>
 
-      {/* Narrative */}
+      {/* Pull quote narrative */}
       <div
-        className="ml-auto text-sm italic text-right"
         style={{
-          color: 'var(--text-dim)',
-          maxWidth: 400,
-          lineHeight: 1.5,
+          marginLeft: 'auto',
+          paddingLeft: 20,
+          borderLeft: '2px solid var(--border)',
+          maxWidth: 380,
           flexShrink: 0,
         }}
       >
-        {narrative}
+        <div
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontStyle: 'italic',
+            fontSize: '0.8rem',
+            lineHeight: 1.55,
+            color: 'var(--text-dim)',
+          }}
+        >
+          {narrative}
+        </div>
       </div>
     </div>
   );
 }
 
-function InsightItem({ label, value, className }) {
-  const color =
-    className === 'gold'
-      ? 'var(--gold)'
-      : className === 'pos'
-      ? 'var(--green)'
-      : className === 'neg'
-      ? 'var(--red)'
-      : 'var(--text)';
-
+function InsightItem({ label, value, accent }) {
   return (
-    <div className="flex flex-col shrink-0">
+    <div style={{ display: 'flex', flexDirection: 'column', padding: '0 16px', flexShrink: 0 }}>
       <span
-        className="text-xs uppercase tracking-widest"
-        style={{ color: 'var(--text-muted)' }}
+        style={{
+          fontSize: '0.54rem',
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--text-muted)',
+          marginBottom: 2,
+        }}
       >
         {label}
       </span>
       <span
-        className="font-mono text-base mt-0.5"
-        style={{ color }}
+        style={{
+          fontFamily: "'DM Mono', monospace",
+          fontSize: '0.9rem',
+          color: accent || 'var(--text)',
+        }}
       >
         {value}
       </span>
@@ -131,9 +139,6 @@ function InsightItem({ label, value, className }) {
 
 function Divider() {
   return (
-    <div
-      className="shrink-0"
-      style={{ width: 1, height: 32, background: 'var(--border)' }}
-    />
+    <div style={{ width: 1, height: 28, background: 'var(--border)', flexShrink: 0 }} />
   );
 }

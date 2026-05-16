@@ -125,7 +125,7 @@ export function render(
   ctx.clearRect(0, 0, W, H);
 
   // Background
-  ctx.fillStyle = '#0a0d14';
+  ctx.fillStyle = '#fafaf8';
   ctx.fillRect(0, 0, W, H);
 
   // Determine visible year range
@@ -175,21 +175,21 @@ function _drawGrid(ctx, dpr, PAD, chartW, chartH, years, visStart, visEnd, yScal
   for (const v of gridValues) {
     const y = yScaleFn(v);
     if (y > PAD.top && y < PAD.top + chartH) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.06)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(PAD.left, y);
       ctx.lineTo(PAD.left + chartW, y);
       ctx.stroke();
 
-      ctx.fillStyle = '#4a5168';
+      ctx.fillStyle = '#999999';
       ctx.fillText(formatFn(v), PAD.left - 6, y + 4 * dpr);
     }
   }
 
   // Vertical year labels
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#4a5168';
+  ctx.fillStyle = '#999999';
   const step =
     totalPoints > 50 ? 10 : totalPoints > 25 ? 5 : totalPoints > 10 ? 2 : 1;
 
@@ -197,7 +197,7 @@ function _drawGrid(ctx, dpr, PAD, chartW, chartH, years, visStart, visEnd, yScal
     if ((y - visYears[0]) % step === 0) {
       const x = _xScale(i, totalPoints, PAD, chartW);
       ctx.fillText(String(y), x, PAD.top + chartH + 18 * dpr);
-      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.04)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x, PAD.top);
@@ -253,7 +253,7 @@ function _drawEventMarkers(ctx, dpr, PAD, chartW, chartH, events, years, visStar
     const label = evt.title.length > 12 ? evt.title.slice(0, 12) + '…' : evt.title;
     ctx.font = `${8 * dpr}px 'DM Sans', sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillStyle = isSelected ? color : '#4a5168';
+    ctx.fillStyle = isSelected ? color : '#999999';
     ctx.fillText(label, x, PAD.top + chartH + 34 * dpr);
   }
 }
@@ -263,7 +263,7 @@ function _drawOverlayPins(ctx, dpr, PAD, chartW, chartH, overlayEntries, years, 
 
   const visYears = years.filter((y) => y >= visStart && y <= visEnd);
   const totalPoints = visYears.length;
-  const goldColor = '#c9a84c';
+  const goldColor = '#b5893a';
 
   for (const entry of overlayEntries) {
     if (entry.date < visStart || entry.date > visEnd) continue;
@@ -289,7 +289,7 @@ function _drawOverlayPins(ctx, dpr, PAD, chartW, chartH, overlayEntries, years, 
     ctx.arc(x, pinY - 8 * dpr, radius, 0, Math.PI * 2);
     ctx.fillStyle = goldColor;
     ctx.fill();
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = '#fafaf8';
     ctx.lineWidth = 1 * dpr;
     ctx.stroke();
 
@@ -313,14 +313,14 @@ function _drawLegend(ctx, dpr, PAD, series, visibleSeries) {
     if (!visibleSeries.includes(s.key)) continue;
     ctx.fillStyle = s.color;
     ctx.fillRect(lx, ly - 5 * dpr, 18 * dpr, 2.5 * dpr);
-    ctx.fillStyle = '#8891aa';
+    ctx.fillStyle = '#666666';
     ctx.fillText(s.label, lx + 24 * dpr, ly + 1 * dpr);
     lx += ctx.measureText(s.label).width + 50 * dpr;
   }
 }
 
 function _drawHoverLine(ctx, dpr, PAD, chartH, x) {
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)';
   ctx.lineWidth = 1 * dpr;
   ctx.setLineDash([]);
   ctx.beginPath();
@@ -458,13 +458,13 @@ function _renderCumulativeImpact(ctx, canvas, domain, events, overlayEntries, se
 
   // Midline label
   ctx.font = `${9 * dpr}px 'DM Sans', sans-serif`;
-  ctx.fillStyle = '#4a5168';
+  ctx.fillStyle = '#888888';
   ctx.textAlign = 'left';
   ctx.fillText('Access Score (0–100)', PAD.left + 6 * dpr, PAD.top - 8 * dpr);
 
   // Neutral line at 50
   const mid50y = yScale(50);
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)';
   ctx.lineWidth = 1 * dpr;
   ctx.setLineDash([6 * dpr, 6 * dpr]);
   ctx.beginPath();
@@ -485,10 +485,10 @@ function _renderCumulativeImpact(ctx, canvas, domain, events, overlayEntries, se
     path.closePath();
 
     const gradG = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + chartH);
-    gradG.addColorStop(0, '#56c98722');
-    gradG.addColorStop(0.5, '#56c98722');
-    gradG.addColorStop(0.5, '#e05c5c22');
-    gradG.addColorStop(1, '#e05c5c00');
+    gradG.addColorStop(0, '#2d7a4522');
+    gradG.addColorStop(0.5, '#2d7a4522');
+    gradG.addColorStop(0.5, '#c0392b22');
+    gradG.addColorStop(1, '#c0392b00');
     ctx.fillStyle = gradG;
     ctx.fill(path);
   }
@@ -500,7 +500,7 @@ function _renderCumulativeImpact(ctx, canvas, domain, events, overlayEntries, se
     slicedVals.forEach((v, i) => {
       const x = _xScale(i, totalPoints, PAD, chartW);
       const y = yScale(v);
-      ctx.strokeStyle = v >= 50 ? '#56c987' : '#e05c5c';
+      ctx.strokeStyle = v >= 50 ? '#2d7a45' : '#c0392b';
       if (i === 0) {
         ctx.moveTo(x, y);
       } else {

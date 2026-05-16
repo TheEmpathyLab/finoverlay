@@ -11,7 +11,7 @@
     "id": "voting-rights",
     "file": "voting-rights.json",
     "name": "Voting Rights",
-    "tagline": "Supreme Court & legislation shaping voting access, 1865–2024",
+    "tagline": "Supreme Court & legislation shaping voting access, 1865–2026",
     "event_count": 34,
     "overlay_prompt": "Add community events — district redraws, turnout shifts, local elections, DOJ interventions"
   }

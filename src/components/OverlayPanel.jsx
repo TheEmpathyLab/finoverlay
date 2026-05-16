@@ -57,18 +57,18 @@ export default function OverlayPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Entry list */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
-        <div
-          className="text-xs uppercase tracking-widest mb-3"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          {domain?.default_overlay_label || 'Overlay'} Entries
-        </div>
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <SectionLabel>{domain?.default_overlay_label || 'Overlay'} Entries</SectionLabel>
 
         {sorted.length === 0 && (
           <div
-            className="text-sm text-center py-6"
-            style={{ color: 'var(--text-muted)' }}
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--text-muted)',
+              textAlign: 'center',
+              padding: '24px 0',
+              fontStyle: 'italic',
+            }}
           >
             No entries yet.
           </div>
@@ -88,10 +88,11 @@ export default function OverlayPanel({
       {/* Add form */}
       {showForm && (
         <div
-          className="mx-4 mb-3 p-4 rounded-xl"
           style={{
+            margin: '0 16px 12px',
+            padding: '14px',
             background: 'var(--surface2)',
-            border: '1px solid var(--gold-line)',
+            border: '1px solid var(--border)',
           }}
         >
           <FormRow label="Year">
@@ -132,12 +133,12 @@ export default function OverlayPanel({
           </FormRow>
 
           {formError && (
-            <div className="text-xs mb-2" style={{ color: 'var(--red)' }}>
+            <div style={{ fontSize: '0.72rem', marginBottom: 8, color: 'var(--red)' }}>
               {formError}
             </div>
           )}
 
-          <div className="flex gap-2 mt-3">
+          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <button
               onClick={() => { setShowForm(false); setFormError(''); }}
               style={{ ...btnStyle, flex: 1 }}
@@ -146,16 +147,23 @@ export default function OverlayPanel({
             </button>
             <button
               onClick={handleAdd}
-              style={{ ...btnStyle, flex: 1, background: 'var(--gold)', color: '#0a0d14', border: '1px solid var(--gold)', fontWeight: 500 }}
+              style={{
+                ...btnStyle,
+                flex: 1,
+                background: 'var(--text)',
+                color: '#ffffff',
+                border: '1px solid var(--text)',
+                fontWeight: 500,
+              }}
             >
-              Add
+              Add Entry
             </button>
           </div>
         </div>
       )}
 
       {/* Bottom actions */}
-      <div className="px-4 pb-4 flex flex-col gap-2 shrink-0">
+      <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
@@ -163,21 +171,23 @@ export default function OverlayPanel({
               width: '100%',
               padding: '9px',
               border: '1px dashed var(--border)',
-              borderRadius: 8,
               background: 'transparent',
-              color: 'var(--text-dim)',
-              fontSize: 13,
+              color: 'var(--text-muted)',
+              fontSize: '0.75rem',
               cursor: 'pointer',
               fontFamily: 'inherit',
-              transition: 'all 0.2s',
+              letterSpacing: '0.04em',
+              transition: 'all 0.15s',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--gold)';
-              e.currentTarget.style.color = 'var(--gold)';
+              e.currentTarget.style.borderStyle = 'solid';
+              e.currentTarget.style.borderColor = 'var(--text)';
+              e.currentTarget.style.color = 'var(--text)';
             }}
             onMouseLeave={(e) => {
+              e.currentTarget.style.borderStyle = 'dashed';
               e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--text-dim)';
+              e.currentTarget.style.color = 'var(--text-muted)';
             }}
           >
             + Add Entry
@@ -203,35 +213,56 @@ export default function OverlayPanel({
 }
 
 function OverlayItem({ entry, isSelected, onSelect, onDelete }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <div
-      className="flex items-start gap-3 mb-2 p-3 rounded-lg cursor-pointer group relative transition-all"
       style={{
-        background: isSelected ? 'var(--gold-dim)' : 'var(--surface2)',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 12,
+        marginBottom: 6,
+        padding: '10px 12px',
+        background: isSelected ? 'var(--surface2)' : hovered ? 'var(--surface2)' : 'transparent',
         border: `1px solid ${isSelected ? 'var(--gold)' : 'var(--border)'}`,
-        borderLeft: '3px solid var(--gold)',
+        borderLeft: `3px solid ${isSelected ? 'var(--gold)' : 'var(--border)'}`,
+        cursor: 'pointer',
+        transition: 'all 0.15s',
       }}
       onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex-1 min-w-0">
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div
-          className="text-sm font-medium truncate"
-          style={{ color: 'var(--text)' }}
+          style={{
+            fontSize: '0.82rem',
+            fontWeight: 500,
+            color: 'var(--text)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
         >
           {entry.title}
         </div>
-        <div className="text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
+        <div style={{ fontSize: '0.7rem', marginTop: 2, color: 'var(--text-dim)' }}>
           {entry.date}
           {entry.value && (
-            <span className="ml-2 font-mono" style={{ color: 'var(--gold)' }}>
+            <span style={{ marginLeft: 8, fontFamily: "'DM Mono', monospace", color: 'var(--gold)' }}>
               {entry.value}
             </span>
           )}
         </div>
         {entry.note && (
           <div
-            className="text-xs mt-1 truncate"
-            style={{ color: 'var(--text-muted)' }}
+            style={{
+              fontSize: '0.7rem',
+              marginTop: 2,
+              color: 'var(--text-muted)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
           >
             {entry.note}
           </div>
@@ -239,14 +270,25 @@ function OverlayItem({ entry, isSelected, onSelect, onDelete }) {
       </div>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity text-base"
         style={{
           background: 'none',
           border: 'none',
-          color: 'var(--red)',
+          color: 'var(--text-muted)',
           cursor: 'pointer',
           padding: '0 2px',
           flexShrink: 0,
+          fontSize: 16,
+          lineHeight: 1,
+          opacity: hovered ? 0.6 : 0,
+          transition: 'opacity 0.15s',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.opacity = '1';
+          e.currentTarget.style.color = 'var(--red)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.opacity = '0.6';
+          e.currentTarget.style.color = 'var(--text-muted)';
         }}
       >
         ×
@@ -255,12 +297,36 @@ function OverlayItem({ entry, isSelected, onSelect, onDelete }) {
   );
 }
 
+function SectionLabel({ children }) {
+  return (
+    <div
+      style={{
+        fontSize: '0.58rem',
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: 'var(--text-muted)',
+        marginBottom: 10,
+        paddingBottom: 5,
+        borderBottom: '1px solid var(--border)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 function FormRow({ label, children }) {
   return (
-    <div className="mb-3">
+    <div style={{ marginBottom: 10 }}>
       <label
-        className="block text-xs mb-1"
-        style={{ color: 'var(--text-dim)' }}
+        style={{
+          display: 'block',
+          fontSize: '0.65rem',
+          marginBottom: 4,
+          color: 'var(--text-dim)',
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
+        }}
       >
         {label}
       </label>
@@ -271,24 +337,25 @@ function FormRow({ label, children }) {
 
 const inputStyle = {
   width: '100%',
-  background: 'var(--bg)',
+  background: 'var(--surface)',
   border: '1px solid var(--border)',
+  borderRadius: 0,
   color: 'var(--text)',
   padding: '7px 10px',
-  borderRadius: 6,
-  fontSize: 13,
+  fontSize: '0.8rem',
   fontFamily: 'inherit',
   outline: 'none',
 };
 
 const btnStyle = {
   padding: '8px 14px',
-  borderRadius: 6,
-  fontSize: 13,
+  fontSize: '0.7rem',
+  letterSpacing: '0.04em',
   cursor: 'pointer',
   border: '1px solid var(--border)',
+  borderRadius: 0,
   background: 'transparent',
   color: 'var(--text-dim)',
   fontFamily: 'inherit',
-  transition: 'all 0.2s',
+  transition: 'all 0.15s',
 };

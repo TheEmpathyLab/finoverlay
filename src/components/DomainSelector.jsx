@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import registry from '../data/registry.json';
+
+const DOMAIN_ACCENT = {
+  'financial-markets': '#2b5ea7',
+  'voting-rights': '#6b4faa',
+};
 
 export default function DomainSelector({ onSelect }) {
   return (
@@ -7,97 +12,184 @@ export default function DomainSelector({ onSelect }) {
       className="flex flex-col items-center justify-center min-h-screen fade-up"
       style={{ background: 'var(--bg)' }}
     >
-      {/* Header */}
-      <div className="text-center mb-12">
+      {/* Masthead */}
+      <div style={{ maxWidth: 680, width: '100%', padding: '0 24px', marginBottom: 28, textAlign: 'center' }}>
         <div
-          className="font-serif text-4xl mb-2"
-          style={{ color: 'var(--gold)' }}
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '2.75rem',
+            fontWeight: 700,
+            color: 'var(--text)',
+            lineHeight: 1,
+            letterSpacing: '-0.01em',
+            marginBottom: 8,
+          }}
         >
           Stratum
         </div>
-        <div className="text-sm" style={{ color: 'var(--text-dim)' }}>
+        <div
+          style={{
+            fontSize: '0.6rem',
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+            marginBottom: 14,
+          }}
+        >
           Historical Impact Overlay Engine
         </div>
+        <div style={{ borderTop: '1px solid var(--border)' }} />
       </div>
 
-      {/* Domain cards */}
-      <div className="grid grid-cols-1 gap-6 w-full max-w-3xl px-6 md:grid-cols-2">
-        {registry.map((domain) => (
-          <DomainCard key={domain.id} domain={domain} onSelect={onSelect} />
+      {/* Domain list */}
+      <div style={{ width: '100%', maxWidth: 680, padding: '0 24px' }}>
+        <div
+          style={{
+            fontSize: '0.6rem',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+            marginBottom: 6,
+          }}
+        >
+          Choose a Domain
+        </div>
+        <div style={{ borderTop: '2px solid var(--text)' }} />
+        {registry.map((domain, idx) => (
+          <DomainCard
+            key={domain.id}
+            domain={domain}
+            accent={DOMAIN_ACCENT[domain.id] || 'var(--gold)'}
+            onSelect={onSelect}
+            isLast={idx === registry.length - 1}
+          />
         ))}
       </div>
 
       {/* Footer */}
-      <div className="mt-12 text-xs" style={{ color: 'var(--text-muted)' }}>
+      <div
+        style={{
+          marginTop: 32,
+          fontSize: '0.7rem',
+          color: 'var(--text-muted)',
+          letterSpacing: '0.04em',
+        }}
+      >
         Domain-agnostic &nbsp;&middot;&nbsp; Add new domains by dropping a JSON file
       </div>
     </div>
   );
 }
 
-function DomainCard({ domain, onSelect }) {
+function DomainCard({ domain, accent, onSelect, isLast }) {
+  const [hovered, setHovered] = useState(false);
+
+  const yearRange = domain.tagline.match(/\d{4}[–\-]\d{4}/)?.[0] || '';
+
   return (
     <button
       onClick={() => onSelect(domain.id)}
-      className="text-left rounded-xl p-6 transition-all duration-200 group"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        background: 'var(--surface)',
-        border: '1px solid var(--border)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--gold)';
-        e.currentTarget.style.boxShadow = '0 0 0 1px rgba(201,168,76,0.2), 0 8px 32px rgba(0,0,0,0.4)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--border)';
-        e.currentTarget.style.boxShadow = 'none';
+        display: 'flex',
+        gap: 20,
+        alignItems: 'flex-start',
+        width: '100%',
+        padding: `18px ${hovered ? '8px' : '0'}`,
+        background: hovered ? 'var(--surface2)' : 'transparent',
+        border: 'none',
+        borderBottom: isLast ? 'none' : '1px solid var(--border)',
+        cursor: 'pointer',
+        transition: 'background 0.15s, padding 0.15s',
+        textAlign: 'left',
       }}
     >
-      {/* Time range badge */}
+      {/* Year range */}
+      <div style={{ flexShrink: 0, width: 90, paddingTop: 4, textAlign: 'right' }}>
+        <span
+          style={{
+            fontSize: '0.62rem',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+            fontFamily: "'DM Mono', monospace",
+          }}
+        >
+          {yearRange}
+        </span>
+      </div>
+
+      {/* Vertical accent rule */}
       <div
-        className="inline-block text-xs px-2 py-1 rounded mb-4 font-mono"
         style={{
-          background: 'var(--gold-dim)',
-          color: 'var(--gold)',
-          border: '1px solid var(--gold-line)',
+          width: 3,
+          alignSelf: 'stretch',
+          background: accent,
+          flexShrink: 0,
+          borderRadius: 1,
+        }}
+      />
+
+      {/* Content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '1.4rem',
+            fontWeight: 700,
+            color: 'var(--text)',
+            lineHeight: 1.2,
+            marginBottom: 4,
+          }}
+        >
+          {domain.name}
+        </div>
+        <div
+          style={{
+            fontSize: '0.82rem',
+            color: 'var(--text-dim)',
+            lineHeight: 1.5,
+            marginBottom: 6,
+          }}
+        >
+          {domain.tagline}
+        </div>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <span
+            style={{
+              fontSize: '0.65rem',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
+            }}
+          >
+            {domain.event_count} events
+          </span>
+          <span
+            style={{
+              fontSize: '0.78rem',
+              color: 'var(--text-dim)',
+              fontStyle: 'italic',
+            }}
+          >
+            {domain.overlay_prompt}
+          </span>
+        </div>
+      </div>
+
+      {/* Arrow */}
+      <div
+        style={{
+          flexShrink: 0,
+          fontSize: '1rem',
+          color: hovered ? 'var(--text)' : 'var(--text-muted)',
+          transition: 'color 0.15s, transform 0.15s',
+          transform: hovered ? 'translateX(3px)' : 'none',
+          paddingTop: 6,
         }}
       >
-        {domain.tagline.match(/\d{4}[–\-]\d{4}/)?.[0] || ''}
-      </div>
-
-      {/* Name */}
-      <div
-        className="font-serif text-2xl mb-2"
-        style={{ color: 'var(--text)' }}
-      >
-        {domain.name}
-      </div>
-
-      {/* Tagline */}
-      <div className="text-sm mb-4" style={{ color: 'var(--text-dim)' }}>
-        {domain.tagline}
-      </div>
-
-      {/* Event count */}
-      <div className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
-        {domain.event_count} events in registry
-      </div>
-
-      {/* Overlay hint */}
-      <div
-        className="text-xs italic mb-4"
-        style={{ color: 'var(--text-dim)' }}
-      >
-        {domain.overlay_prompt}
-      </div>
-
-      {/* CTA */}
-      <div
-        className="flex items-center gap-2 text-sm font-medium transition-colors"
-        style={{ color: 'var(--gold)' }}
-      >
-        <span>Explore domain</span>
-        <span className="text-base">→</span>
+        →
       </div>
     </button>
   );

@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0a0d14;
-  --surface: #111520;
-  --surface2: #161c2d;
-  --border: rgba(255, 255, 255, 0.07);
-  --gold: #c9a84c;
-  --gold-dim: rgba(201, 168, 76, 0.15);
-  --gold-line: rgba(201, 168, 76, 0.6);
-  --teal: #4cc9c9;
-  --red: #e05c5c;
-  --green: #56c987;
-  --blue: #5c8fe0;
-  --purple: #9b6fe0;
-  --text: #e8eaf0;
-  --text-dim: #8891aa;
-  --text-muted: #4a5168;
+  --bg: #fafaf8;
+  --surface: #ffffff;
+  --surface2: #f2f1ee;
+  --border: #d9d5ce;
+  --gold: #b5893a;
+  --gold-dim: rgba(181, 137, 58, 0.08);
+  --gold-line: rgba(181, 137, 58, 0.35);
+  --teal: #1a7a8a;
+  --red: #c0392b;
+  --green: #2d7a45;
+  --blue: #2b5ea7;
+  --purple: #6b4faa;
+  --text: #121212;
+  --text-dim: #555555;
+  --text-muted: #888888;
 }
 
 * {
@@ -79,7 +79,7 @@ body {
   cursor: pointer;
 }
 .toggle-sw.on {
-  background: var(--gold);
+  background: var(--text);
 }
 .toggle-sw::after {
   content: '';
