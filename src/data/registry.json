@@ -1,0 +1,18 @@
+[
+  {
+    "id": "financial-markets",
+    "file": "financial-markets.json",
+    "name": "Financial Markets",
+    "tagline": "US equity and bond markets, 1926–2024",
+    "event_count": 21,
+    "overlay_prompt": "Add personal financial milestones — first job, home purchase, investments, retirement"
+  },
+  {
+    "id": "voting-rights",
+    "file": "voting-rights.json",
+    "name": "Voting Rights",
+    "tagline": "Supreme Court & legislation shaping voting access, 1865–2024",
+    "event_count": 34,
+    "overlay_prompt": "Add community events — district redraws, turnout shifts, local elections, DOJ interventions"
+  }
+]

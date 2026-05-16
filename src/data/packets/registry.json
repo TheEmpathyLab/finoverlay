@@ -1,0 +1,17 @@
+[
+  {
+    "id": "us-presidents",
+    "file": "us-presidents.json",
+    "name": "US Presidents",
+    "description": "Presidential administrations by party, 1789–2025",
+    "type": "band",
+    "time_range": { "start": 1789, "end": 2025 },
+    "compatible_x_units": ["year"],
+    "default_active": false,
+    "legend": [
+      { "label": "Republican", "color": "#e05c5c" },
+      { "label": "Democrat", "color": "#5c8fe0" },
+      { "label": "Other", "color": "#8891aa" }
+    ]
+  }
+]
