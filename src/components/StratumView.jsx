@@ -194,7 +194,7 @@ export default function StratumView({ domainId, onChangeDomain }) {
     ectx.fillStyle = '#888888';
     ectx.textAlign = 'left';
     ectx.fillText(
-      `${domain?.name || 'Stratum'} · ${overlayEntries.length} overlay entries · ${new Date().toLocaleDateString()}`,
+      `${domain?.name || 'Empath Graph'} · ${overlayEntries.length} overlay entries · ${new Date().toLocaleDateString()}`,
       16 * dpr,
       canvas.height + 25 * dpr
     );
@@ -202,7 +202,7 @@ export default function StratumView({ domainId, onChangeDomain }) {
     ectx.textAlign = 'right';
     ectx.fillStyle = '#b5893a';
     ectx.font = `italic ${11 * dpr}px 'Playfair Display', serif`;
-    ectx.fillText('Stratum', exportCanvas.width - 16 * dpr, canvas.height + 25 * dpr);
+    ectx.fillText('Empath Graph', exportCanvas.width - 16 * dpr, canvas.height + 25 * dpr);
 
     const a = document.createElement('a');
     a.download = `stratum-${domainId}-${Date.now()}.png`;
@@ -218,7 +218,7 @@ export default function StratumView({ domainId, onChangeDomain }) {
       >
         <div className="text-center">
           <div className="font-serif text-2xl mb-2" style={{ color: 'var(--gold)' }}>
-            Stratum
+            Empath Graph
           </div>
           <div className="text-sm">Loading domain…</div>
         </div>

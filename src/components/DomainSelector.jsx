@@ -25,7 +25,7 @@ export default function DomainSelector({ onSelect }) {
             marginBottom: 8,
           }}
         >
-          Stratum
+          Empath Graph
         </div>
         <div
           style={{
@@ -36,7 +36,7 @@ export default function DomainSelector({ onSelect }) {
             marginBottom: 14,
           }}
         >
-          Historical Impact Overlay Engine
+          Knowledge Over Time
         </div>
         <div style={{ borderTop: '1px solid var(--border)' }} />
       </div>

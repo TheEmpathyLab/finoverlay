@@ -31,7 +31,7 @@ export default function Header({ domain, events, onChangeDomain, onExportPNG }) 
               letterSpacing: '-0.01em',
             }}
           >
-            Stratum
+            Empath Graph
           </span>
           <span
             style={{
@@ -41,7 +41,7 @@ export default function Header({ domain, events, onChangeDomain, onExportPNG }) 
               color: 'var(--text-muted)',
             }}
           >
-            Historical Impact Overlay Engine
+            Knowledge Over Time
           </span>
         </div>
 
