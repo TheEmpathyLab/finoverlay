@@ -13,5 +13,20 @@
       { "label": "Democrat", "color": "#5c8fe0" },
       { "label": "Other", "color": "#8891aa" }
     ]
+  },
+  {
+    "id": "scotus-composition",
+    "file": "scotus-composition.json",
+    "name": "SCOTUS Composition",
+    "description": "Supreme Court ideological balance by era, 1865–2026",
+    "type": "strip",
+    "time_range": { "start": 1865, "end": 2026 },
+    "compatible_x_units": ["year"],
+    "default_active": false,
+    "legend": [
+      { "label": "Conservative majority", "color": "#c0392b" },
+      { "label": "Liberal majority", "color": "#2b5ea7" },
+      { "label": "Swing seat", "color": "#888888" }
+    ]
   }
 ]

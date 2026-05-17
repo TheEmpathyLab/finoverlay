@@ -1,0 +1,40 @@
+{
+  "id": "scotus-composition",
+  "type": "strip",
+  "name": "SCOTUS Composition",
+  "description": "Supreme Court ideological balance by era, 1865–2026",
+  "time_range": { "start": 1865, "end": 2026 },
+  "compatible_x_units": ["year"],
+  "render": {
+    "layer": "top-padding",
+    "height": 8,
+    "offset_from_top": 10
+  },
+  "legend": [
+    { "label": "Conservative majority", "color": "#c0392b" },
+    { "label": "Liberal majority", "color": "#2b5ea7" },
+    { "label": "Swing seat", "color": "#888888" }
+  ],
+  "data": [
+    { "start": 1865, "end": 1873, "conservative": 4, "swing": 0, "liberal": 5, "total": 9, "label": "Chase Court" },
+    { "start": 1873, "end": 1888, "conservative": 7, "swing": 0, "liberal": 2, "total": 9, "label": "Waite Court" },
+    { "start": 1888, "end": 1910, "conservative": 7, "swing": 0, "liberal": 2, "total": 9, "label": "Fuller Court (Plessy era)" },
+    { "start": 1910, "end": 1921, "conservative": 6, "swing": 0, "liberal": 3, "total": 9, "label": "White Court" },
+    { "start": 1921, "end": 1930, "conservative": 7, "swing": 0, "liberal": 2, "total": 9, "label": "Taft Court" },
+    { "start": 1930, "end": 1937, "conservative": 5, "swing": 0, "liberal": 4, "total": 9, "label": "Hughes Court (Four Horsemen)" },
+    { "start": 1937, "end": 1941, "conservative": 3, "swing": 0, "liberal": 6, "total": 9, "label": "Hughes Court (switch in time)" },
+    { "start": 1941, "end": 1953, "conservative": 3, "swing": 1, "liberal": 5, "total": 9, "label": "Stone / Vinson Courts" },
+    { "start": 1953, "end": 1962, "conservative": 4, "swing": 0, "liberal": 5, "total": 9, "label": "Warren Court (Brown era)" },
+    { "start": 1962, "end": 1969, "conservative": 2, "swing": 0, "liberal": 7, "total": 9, "label": "Warren Court (VRA era)" },
+    { "start": 1969, "end": 1975, "conservative": 5, "swing": 0, "liberal": 4, "total": 9, "label": "Burger Court" },
+    { "start": 1975, "end": 1986, "conservative": 5, "swing": 1, "liberal": 3, "total": 9, "label": "Burger Court (O'Connor)" },
+    { "start": 1986, "end": 1990, "conservative": 5, "swing": 1, "liberal": 3, "total": 9, "label": "Rehnquist Court" },
+    { "start": 1990, "end": 1993, "conservative": 4, "swing": 2, "liberal": 3, "total": 9, "label": "Rehnquist Court (Souter)" },
+    { "start": 1993, "end": 2005, "conservative": 4, "swing": 1, "liberal": 4, "total": 9, "label": "Rehnquist Court (Kennedy swing)" },
+    { "start": 2005, "end": 2010, "conservative": 5, "swing": 1, "liberal": 3, "total": 9, "label": "Roberts Court (Alito replaces O'Connor)" },
+    { "start": 2010, "end": 2017, "conservative": 4, "swing": 1, "liberal": 4, "total": 9, "label": "Roberts Court (Kennedy swing)" },
+    { "start": 2017, "end": 2018, "conservative": 4, "swing": 1, "liberal": 4, "total": 9, "label": "Roberts Court (Gorsuch)" },
+    { "start": 2018, "end": 2020, "conservative": 5, "swing": 1, "liberal": 3, "total": 9, "label": "Roberts Court (Kavanaugh; Roberts swing)" },
+    { "start": 2020, "end": 2026, "conservative": 6, "swing": 0, "liberal": 3, "total": 9, "label": "Roberts Court (Barrett — supermajority)" }
+  ]
+}

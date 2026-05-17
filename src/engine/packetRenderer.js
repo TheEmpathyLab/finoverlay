@@ -67,6 +67,62 @@ function renderBandPacket(ctx, packet, visStart, visEnd, PAD, chartW, chartH, dp
   }
 }
 
+function renderStripPacket(ctx, packet, visStart, visEnd, PAD, chartW, chartH, dpr) {
+  const { render: renderOpts = {}, data = [] } = packet;
+  const stripH = (renderOpts.height ?? 8) * dpr;
+  const offsetFromTop = (renderOpts.offset_from_top ?? 10) * dpr;
+  const y = PAD.top - offsetFromTop - stripH;
+
+  const conservativeColor = '#c0392b';
+  const liberalColor = '#2b5ea7';
+  const swingColor = '#aaaaaa';
+
+  for (const period of data) {
+    const periodStart = Math.max(period.start, visStart);
+    const periodEnd = Math.min(period.end, visEnd);
+    if (periodStart >= periodEnd) continue;
+
+    const x0 = yearToX(periodStart, visStart, visEnd, PAD, chartW);
+    const x1 = yearToX(periodEnd, visStart, visEnd, PAD, chartW);
+    const totalW = x1 - x0;
+    if (totalW < 0.5) continue;
+
+    const total = period.total || 9;
+    const conservativeW = (period.conservative / total) * totalW;
+    const swingW = (period.swing / total) * totalW;
+    const liberalW = totalW - conservativeW - swingW;
+
+    // Conservative (left segment)
+    ctx.fillStyle = conservativeColor;
+    ctx.fillRect(x0, y, conservativeW, stripH);
+
+    // Swing (middle segment)
+    if (swingW > 0) {
+      ctx.fillStyle = swingColor;
+      ctx.fillRect(x0 + conservativeW, y, swingW, stripH);
+    }
+
+    // Liberal (right segment)
+    if (liberalW > 0) {
+      ctx.fillStyle = liberalColor;
+      ctx.fillRect(x0 + conservativeW + swingW, y, liberalW, stripH);
+    }
+
+    // Period separator — thin white line at left edge of each era
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillRect(x0, y, 1 * dpr, stripH);
+  }
+
+  // Strip label ("SCOTUS") on the left margin
+  ctx.save();
+  ctx.fillStyle = '#999999';
+  ctx.font = `${7 * dpr}px 'DM Mono', monospace`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SCOTUS', PAD.left - 6 * dpr, y + stripH / 2);
+  ctx.restore();
+}
+
 /**
  * Entry point called from the main renderer after background fill,
  * before grid lines and series data.
@@ -77,7 +133,8 @@ export function renderPackets(ctx, { activePackets, visStart, visEnd, PAD, chart
   for (const packet of activePackets) {
     if (packet.type === 'band') {
       renderBandPacket(ctx, packet, visStart, visEnd, PAD, chartW, chartH, dpr);
+    } else if (packet.type === 'strip') {
+      renderStripPacket(ctx, packet, visStart, visEnd, PAD, chartW, chartH, dpr);
     }
-    // Future: 'strip', 'event_stream', 'line'
   }
 }
